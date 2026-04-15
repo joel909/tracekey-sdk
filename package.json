@@ -1,0 +1,31 @@
+{
+  "name": "tracekey-sdk",
+  "version": "1.0.5",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "vitest",
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^25.6.0",
+    "jsdom": "^29.0.2",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  },
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "js-cookie": "^3.0.5"
+  }
+}
