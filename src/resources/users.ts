@@ -8,6 +8,8 @@ import {UaHighEntropyValues,DeviceInfo} from '../types';
  */
 export class UserResource {
   private client: TracekeyClient;
+  private heartBeatTimer: ReturnType<typeof setInterval> | null = null;
+  private pageHideHandler: ((event: PageTransitionEvent) => void) | null = null;
   // The client passes a reference of itself to the resource, meaning all requests
   // use the same API key and base configuration.
   constructor(client: TracekeyClient) {
@@ -32,6 +34,35 @@ export class UserResource {
 
     })
   }
+  public async startHeartBeatSession(): Promise<void> {
+    if (this.heartBeatTimer) {
+      return;
+    }
+
+    this.pageHideHandler = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        return;
+      }
+
+      if (this.heartBeatTimer) {
+        clearInterval(this.heartBeatTimer);
+        this.heartBeatTimer = null;
+      }
+
+      void this.LogEvent('user_exit').catch((error) => {
+        console.warn('Failed to log user_exit event:', error);
+      });
+    };
+
+    window.addEventListener('pagehide', this.pageHideHandler);
+
+    this.heartBeatTimer = setInterval(() => {
+      void this.LogEvent('heartbeat').catch((error) => {
+        console.warn('Failed to log heartbeat event:', error);
+      });
+    }, 60_000);
+  }
+
   public async getClientAdditionalInfo() : Promise<DeviceInfo> {
     let deviceInfo: DeviceInfo = {};
     try{
