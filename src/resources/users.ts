@@ -63,27 +63,35 @@ export class UserResource {
     }, 60_000);
   }
 
-  public async getClientAdditionalInfo() : Promise<DeviceInfo> {
-    let deviceInfo: DeviceInfo = {};
-    try{
-        if((navigator as any).userAgentData){
-            const uaData = (navigator as any).userAgentData as UaHighEntropyValues;
-            const primaryBrand = uaData.brands.find(b => b.brand !== "Not;A=Brand");
-            deviceInfo = {
-                brand: primaryBrand?.brand,
-                model: uaData.model,
-                platform: uaData.platform,
-                platformVersion: uaData.platformVersion,
-            };
-        }else{
-            return {}
-        }
-    }catch(error){
-        // If any error occurs while accessing userAgentData, we can choose to log it or ignore it. For now, we'll just ignore it and return an empty device info object.
-        console.warn('Error accessing userAgentData:', error);
-        return {};
+  public async getClientAdditionalInfo(): Promise<DeviceInfo> {
+  let deviceInfo: DeviceInfo = {};
+  try {
+    if ((navigator as any).userAgentData) {
+      const uaData = await (navigator as any).userAgentData.getHighEntropyValues([
+        "model",
+        "platform", 
+        "platformVersion",
+        "brands"
+      ]);
+      
+      const primaryBrand = uaData.brands.find(
+        (b: any) => !b.brand.includes("Not") && !b.brand.includes("Brand")
+      );
+
+      deviceInfo = {
+        brand: primaryBrand?.brand,
+        model: uaData.model,
+        platform: uaData.platform,
+        platformVersion: uaData.platformVersion,
+      };
+    } else {
+      return {};
     }
-    return deviceInfo;
+  } catch (error) {
+    console.warn('Error accessing userAgentData:', error);
+    return {};
   }
+  return deviceInfo;
+}
 
 }
