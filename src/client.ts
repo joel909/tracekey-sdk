@@ -38,7 +38,9 @@ export class TracekeyClient {
 
  
   async getClientAdditionalInfo(){
-    return this.client.getClientAdditionalInfo();
+    const deviceInfo = await this.client.getClientAdditionalInfo();
+    console.log('Device Info:', deviceInfo);
+    return deviceInfo;
   }
   async logLandingEvent(){
     this.client.LogEvent('landing');
