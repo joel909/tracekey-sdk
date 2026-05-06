@@ -36,7 +36,10 @@ export class TracekeyClient {
     this.deviceID = deviceID;
   }
 
-  //Log A landing event 
+ 
+  async getClientAdditionalInfo(){
+    return this.client.getClientAdditionalInfo();
+  }
   async logLandingEvent(){
     this.client.LogEvent('landing');
   }
