@@ -75,7 +75,7 @@ If this is a public package and you need to publish a scoped or pre-release vers
 
 ## Initialization
 
-Import and initialize the `TracekeyClient` as early as possible in your application lifecycle (e.g., in a top-level provider, layout, or root component).
+Import and initialize the `TracekeyClient` in code that is only used from the browser. In Next.js, create the singleton in a shared module, but only call logging methods from client components, effects, or browser event handlers.
 
 ```typescript
 import { TracekeyClient } from 'tracekey-sdk';
@@ -86,7 +86,33 @@ export const tracekey = new TracekeyClient({
 });
 ```
 
-*Note: The SDK automatically captures the current page route and device ID upon initialization.*
+The SDK resolves the current page route and device ID lazily when an event is logged, which keeps module imports safe in SSR frameworks like Next.js.
+
+### Next.js Example
+
+```typescript
+// src/lib/tracekey.ts
+import { TracekeyClient } from 'tracekey-sdk';
+
+export const tracekey = new TracekeyClient({
+  apiKey: process.env.NEXT_PUBLIC_TRACEKEY_API_KEY!,
+});
+```
+
+```tsx
+'use client';
+
+import { useEffect } from 'react';
+import { tracekey } from '@/lib/tracekey';
+
+export function SignupContainer() {
+  useEffect(() => {
+    void tracekey.logLandingEvent();
+  }, []);
+
+  return null;
+}
+```
 
 ## Usage
 

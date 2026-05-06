@@ -39,6 +39,10 @@ export class UserResource {
       return;
     }
 
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     this.pageHideHandler = (event: PageTransitionEvent) => {
       if (event.persisted) {
         return;
@@ -66,7 +70,7 @@ export class UserResource {
   public async getClientAdditionalInfo(): Promise<DeviceInfo> {
   let deviceInfo: DeviceInfo = {};
   try {
-    if ((navigator as any).userAgentData) {
+    if (typeof navigator !== 'undefined' && (navigator as any).userAgentData) {
       const uaData = await (navigator as any).userAgentData.getHighEntropyValues([
         "model",
         "platform", 

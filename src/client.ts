@@ -1,7 +1,7 @@
 import { TracekeyApiError, TracekeyNetworkError } from './errors';
 import { UserResource } from './resources/users';
 import type { RequestOptions, SdkConfig } from './types';
-import {getDeviceIDFromCookie, createDeviceID, setDeviceIDInCookie } from './resources/cookies';
+import { createDeviceID, getDeviceIDFromCookie, setDeviceIDInCookie } from './resources/cookies';
 
 /**
  * The core client for the Tracekey API.
@@ -10,8 +10,7 @@ export class TracekeyClient {
   public readonly apiKey: string;
   public readonly baseUrl: string;
   public readonly client: UserResource;
-  public readonly deviceID: string | null;
-  public readonly pageRoute: string;
+  private cachedDeviceID: string | null = null;
 
   /**
    * Initialize a new Tracekey SDK Client
@@ -23,17 +22,36 @@ export class TracekeyClient {
     }
     this.apiKey = config.apiKey;
     // Allow users to override the base URL (useful for staging, local testing, etc.)
-    this.baseUrl = config.baseUrl || 'https://tracekey.joeljoby.com/api/v1';
+    this.baseUrl = config.baseUrl || 'https://tracekey.joeljoby.com/';
     // Initialize endpoint resources
-    this.client = new UserResource(this);  
-    //Initialize device ID from cookie or create a new one if it doesn't exist 
+    this.client = new UserResource(this);
+  }
+
+  public get deviceID(): string | null {
+    if (this.cachedDeviceID) {
+      return this.cachedDeviceID;
+    }
+
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
     let deviceID = getDeviceIDFromCookie();
     if (!deviceID) {
-        deviceID = createDeviceID();
-        setDeviceIDInCookie(deviceID);
+      deviceID = createDeviceID();
+      setDeviceIDInCookie(deviceID);
     }
-    this.pageRoute = window.location.pathname;
-    this.deviceID = deviceID;
+
+    this.cachedDeviceID = deviceID;
+    return deviceID;
+  }
+
+  public get pageRoute(): string {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return window.location.pathname;
   }
 
  
