@@ -121,15 +121,15 @@ Track when a user lands on a specific page.
 
 ```typescript
 // Usually called on component mount or page load
-await tracekey.logLandingEvent();
+tracekey.logLandingEvent();
 ```
 
 ### 2. Log Button Clicks
 Track specific user interactions. Pass a descriptive string to identify the button.
 
 ```typescript
-document.getElementById('checkout-btn').addEventListener('click', async () => {
-  await tracekey.logButtonClickEvent('checkout_main');
+document.getElementById('checkout-btn').addEventListener('click', () => {
+  tracekey.logButtonClickEvent('checkout_main');
 });
 ```
 
@@ -138,8 +138,8 @@ Track active time on site by sending periodic heartbeats.
 
 ```typescript
 // Send a heartbeat every 30 seconds
-setInterval(async () => {
-  await tracekey.logUserHeartbeatEvent();
+setInterval(() => {
+  tracekey.logUserHeartbeatEvent();
 }, 30000);
 ```
 
@@ -161,13 +161,15 @@ await tracekey.client.LogEvent('custom_video_played');
 
 ## Error Handling
 
-The SDK provides custom error classes for robust granular error handling.
+The helper methods are fire-and-forget. They never block your application flow, and any network/API failures are contained inside the SDK and surfaced via `console.warn`.
+
+If you need to await delivery or handle request failures directly, use the underlying resource method instead.
 
 ```typescript
 import { TracekeyApiError, TracekeyNetworkError } from 'tracekey-sdk';
 
 try {
-  await tracekey.logLandingEvent();
+  await tracekey.client.LogEvent('custom_video_played');
 } catch (error) {
   if (error instanceof TracekeyApiError) {
     console.error(`API rejected request with status ${error.status}:`, error.data);

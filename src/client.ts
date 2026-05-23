@@ -60,17 +60,27 @@ export class TracekeyClient {
     console.log('Device Info:', deviceInfo);
     return deviceInfo;
   }
-  async logLandingEvent(){
-    this.client.LogEvent('landing');
+
+  private dispatchEvent(actionName: string): void {
+    void this.client.LogEvent(actionName).catch((error) => {
+      console.warn(`Failed to log ${actionName} event:`, error);
+    });
   }
-  async logButtonClickEvent(buttonName: string){
-    this.client.LogEvent(`button_click_${buttonName}`);
+
+  logLandingEvent(): void {
+    this.dispatchEvent('landing');
   }
-  async logUserQuitEvent(){
-    this.client.LogEvent('user_quit');
+
+  logButtonClickEvent(buttonName: string): void {
+    this.dispatchEvent(`button_click_${buttonName}`);
   }
-  async logUserHeartbeatEvent(){
-    this.client.LogEvent('user_heartbeat');
+
+  logUserQuitEvent(): void {
+    this.dispatchEvent('user_quit');
+  }
+
+  logUserHeartbeatEvent(): void {
+    this.dispatchEvent('user_heartbeat');
   }
 
   /**
