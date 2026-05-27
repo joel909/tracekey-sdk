@@ -85,6 +85,26 @@ describe('TracekeyClient in the browser', () => {
     expect(payload.additionalInfo).toEqual({ memberCount: 10 });
   });
 
+  it('logs boarded ride with the boardedRide action name and member count', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const client = new TracekeyClient({ apiKey: 'test-key' });
+
+    client.markedAsBoarded(10);
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse(init!.body as string);
+
+    expect(payload.event_name).toBe('boardedRide');
+    expect(payload.additionalInfo).toEqual({ memberCount: 10 });
+  });
+
   it('swallows logging failures so they do not affect the host app', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error('network down'));
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});

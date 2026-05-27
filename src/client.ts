@@ -86,6 +86,10 @@ export class TracekeyClient {
     this.dispatchEvent('join_queue', { memberCount });
   }
 
+  markedAsBoarded(memberCount: number): void {
+    this.dispatchEvent('boardedRide', { memberCount });
+  }
+
   /**
    * Internal fetch wrapper that automatically adds headers and handles errors.
    */

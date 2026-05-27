@@ -167,6 +167,13 @@ Track when a user joins the queue flow.
 tracekey.logJoinQueue(10);
 ```
 
+### 7. Mark As Boarded
+Track when a queued group is marked as boarded.
+
+```typescript
+tracekey.markedAsBoarded(10);
+```
+
 ## Error Handling
 
 The helper methods are fire-and-forget. They never block your application flow, and any network/API failures are contained inside the SDK and surfaced via `console.warn`.
