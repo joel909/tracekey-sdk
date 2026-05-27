@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TracekeyClient } from './client';
 
 describe('TracekeyClient in the browser', () => {
-  const originalFetch = global.fetch;
+  const originalFetch = globalThis.fetch;
   const flushPromises = async () => {
     await Promise.resolve();
     await Promise.resolve();
@@ -15,7 +15,7 @@ describe('TracekeyClient in the browser', () => {
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
+    globalThis.fetch = originalFetch;
     document.cookie = 'tracekey_device_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
   });
 
@@ -25,7 +25,7 @@ describe('TracekeyClient in the browser', () => {
       status: 200,
       json: async () => ({}),
     });
-    global.fetch = fetchMock as typeof fetch;
+    globalThis.fetch = fetchMock as typeof fetch;
 
     const client = new TracekeyClient({ apiKey: 'test-key' });
     const result = client.logLandingEvent();
@@ -42,6 +42,7 @@ describe('TracekeyClient in the browser', () => {
     expect(payload.page_route).toBe('/signup');
     expect(payload.event_name).toBe('landing');
     expect(payload.device_id).toBeTypeOf('string');
+    expect(payload.additionalInfo).toBeUndefined();
   });
 
   it('reuses the generated device id between events', async () => {
@@ -50,7 +51,7 @@ describe('TracekeyClient in the browser', () => {
       status: 200,
       json: async () => ({}),
     });
-    global.fetch = fetchMock as typeof fetch;
+    globalThis.fetch = fetchMock as typeof fetch;
 
     const client = new TracekeyClient({ apiKey: 'test-key' });
 
@@ -64,10 +65,30 @@ describe('TracekeyClient in the browser', () => {
     expect(firstPayload.device_id).toBe(secondPayload.device_id);
   });
 
+  it('logs join queue with the join_queue action name and member count', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const client = new TracekeyClient({ apiKey: 'test-key' });
+
+    client.logJoinQueue(10);
+    await flushPromises();
+
+    const [, init] = fetchMock.mock.calls[0];
+    const payload = JSON.parse(init!.body as string);
+
+    expect(payload.event_name).toBe('join_queue');
+    expect(payload.additionalInfo).toEqual({ memberCount: 10 });
+  });
+
   it('swallows logging failures so they do not affect the host app', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error('network down'));
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    global.fetch = fetchMock as typeof fetch;
+    globalThis.fetch = fetchMock as typeof fetch;
 
     const client = new TracekeyClient({ apiKey: 'test-key' });
 

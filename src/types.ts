@@ -47,3 +47,5 @@ export interface DeviceInfo {
   platform?: string;
   platformVersion?: string;
 }
+
+export type EventAdditionalInfo = Record<string, unknown>;

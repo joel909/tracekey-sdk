@@ -1,6 +1,6 @@
 import { TracekeyApiError, TracekeyNetworkError } from './errors';
 import { UserResource } from './resources/users';
-import type { RequestOptions, SdkConfig } from './types';
+import type { EventAdditionalInfo, RequestOptions, SdkConfig } from './types';
 import { createDeviceID, getDeviceIDFromCookie, setDeviceIDInCookie } from './resources/cookies';
 
 /**
@@ -54,15 +54,14 @@ export class TracekeyClient {
     return window.location.pathname;
   }
 
- 
-  async getClientAdditionalInfo(){
+  async getClientAdditionalInfo() {
     const deviceInfo = await this.client.getClientAdditionalInfo();
     console.log('Device Info:', deviceInfo);
     return deviceInfo;
   }
 
-  private dispatchEvent(actionName: string): void {
-    void this.client.LogEvent(actionName).catch((error) => {
+  private dispatchEvent(actionName: string, additionalInfo?: EventAdditionalInfo): void {
+    void this.client.LogEvent(actionName, additionalInfo).catch((error) => {
       console.warn(`Failed to log ${actionName} event:`, error);
     });
   }
@@ -81,6 +80,10 @@ export class TracekeyClient {
 
   logUserHeartbeatEvent(): void {
     this.dispatchEvent('user_heartbeat');
+  }
+
+  logJoinQueue(memberCount: number): void {
+    this.dispatchEvent('join_queue', { memberCount });
   }
 
   /**

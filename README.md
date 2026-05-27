@@ -11,6 +11,7 @@ The official JavaScript/TypeScript SDK for Tracekey. Easily track user interacti
 - 🔋 **Zero-config Device Tracking:** Automatically generates and persists device IDs using secure cookies.
 - 📱 **Smart Device Profiling:** Extracts rich device, platform, and browser data via the modern `User-Agent Client Hints API`.
 - 🔌 **Seamless Event Logging:** Pre-built methods for common events (landing, clicks, heartbeats, exits).
+- 🔌 **Seamless Event Logging:** Pre-built methods for common events (landing, clicks, heartbeats, exits, join queue).
 - 🛡️ **Fully Typed:** Written in TypeScript with complete type definitions included.
 - ⚡ **Universal Compatibility:** Ships with both CommonJS and ES Modules support.
 
@@ -157,6 +158,13 @@ If you need to log a custom event that doesn't fit the helper methods, you can a
 
 ```typescript
 await tracekey.client.LogEvent('custom_video_played');
+```
+
+### 6. Log Join Queue
+Track when a user joins the queue flow.
+
+```typescript
+tracekey.logJoinQueue(10);
 ```
 
 ## Error Handling

@@ -1,6 +1,5 @@
 import type { TracekeyClient } from '../client';
-import type { ListUsersParams, User } from '../types';
-import {UaHighEntropyValues,DeviceInfo} from '../types';
+import type { DeviceInfo, EventAdditionalInfo, ListUsersParams, User } from '../types';
 
 /**
  * Handles operations related to users.
@@ -19,20 +18,20 @@ export class UserResource {
    * Log a new event for the client
    * @param actionName - The name of the action to log
    */
-  public async LogEvent(actionName: string): Promise<void> {
-    const deviceInfo : DeviceInfo = await this.getClientAdditionalInfo();
+  public async LogEvent(actionName: string, additionalInfo?: EventAdditionalInfo): Promise<void> {
+    const deviceInfo: DeviceInfo = await this.getClientAdditionalInfo();
     const requestBody = {
-        api_key : this.client.apiKey,
-        device_id : this.client.deviceID,
-        page_route : this.client.pageRoute,
-        event_name : actionName,
-        additionalDeviceInfo : deviceInfo
-    }
+      api_key: this.client.apiKey,
+      device_id: this.client.deviceID,
+      page_route: this.client.pageRoute,
+      event_name: actionName,
+      additionalDeviceInfo: deviceInfo,
+      ...(additionalInfo ? { additionalInfo } : {}),
+    };
     await this.client.request(`api/v1/events`, {
-        method: 'POST',
-        body: requestBody
-
-    })
+      method: 'POST',
+      body: requestBody,
+    });
   }
   public async startHeartBeatSession(): Promise<void> {
     if (this.heartBeatTimer) {
